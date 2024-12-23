@@ -19,21 +19,21 @@ pub mod image_optimizer {
     }
 
     pub fn compress_webp(input_path: &str, output_path: &str, quality: f32) -> Result<(), String> {
-        let input_file = File::open(input_path).map_err(|_| "Failed to open input image")?;
-        let input = image::load(BufReader::new(input_file), image::ImageFormat::WebP).map_err(|_| "Error loading image")?;
+        let input_file = File::open(input_path).map_err(|e| format!("Failed to open input image at {}: {}", input_path, e))?;
+        let input = image::load(BufReader::new(input_file), image::ImageFormat::WebP).map_err(|e| format!("Error loading image at {}: {}", input_path, e))?;
 
-        let webp_encoder = Encoder::from_image(&input).map_err(|_| "Error converting to WebP encoder")?;
-        let webp_data = webp_encoder.encode(quality).map_err(|_| "Error encoding image")?;
+        let webp_encoder = Encoder::from_image(&input).map_err(|_| "Error converting image to WebP encoder".to_string())?;
+        let webp_data = webp_encoder.encode(quality).map_err(|_| "Error encoding image with provided quality".to_string())?;
 
-        std::fs::write(output_path, webp_data).map_err(|_| "Failed to write output image")?;
+        std::fs::write(output_path, webp_data).map_err(|e| format!("Failed to write output image to {}: {}", output_path, e))?;
 
         Ok(())
     }
 
     fn compress_image(input_path: &str, output_path: &str, format: image::ImageOutputFormat) -> Result<(), String> {
-        let img = image::open(input_path).map_err(|_| "Failed to open input image")?;
+        let img = image::open(input_path).map_err(|e| format!("Failed to open input image at {}: {}", input_path, e))?;
         
-        img.save_with_format(output_path, format).map_err(|_| "Failed to save output image")?;
+        img.save_with_format(output_path, format).map_err(|e| format!("Failed to save output image to {}: {}", output_path, e))?;
         Ok(())
     }
 }
