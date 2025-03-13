@@ -1,9 +1,9 @@
-extern crate image;
-extern crate webp;
-
-use image::ImageOutputFormat::{Jpeg, Png};
-use image::{DynamicImage, ImageError};
-use std::{fs::File, io::{BufReader, Error as IoError}, path::Path};
+use image::{DynamicImage, ImageError, ImageOutputFormat::{Jpeg, Png}};
+use std::{
+    fs::File, 
+    io::{BufReader, Error as IoError}, 
+    path::Path
+};
 use webp::Encoder;
 
 pub mod image_optimizer {
@@ -41,10 +41,13 @@ pub mod image_optimizer {
         let input_file = File::open(input_path)?;
         let input = image::load(BufReader::new(input_file), image::ImageFormat::WebP)?;
 
-        let webp_encoder = Encoder::from_image(&input).ok_or_else(|| ImageOptimizerError::EncodeWebPError("Error converting image to WebP encoder".to_string()))?;
-        let webp_data = webp_encoder.encode(quality).map_err(|_| ImageOptimizerError::EncodeWebPError("Error encoding image with provided quality".to_string()))?;
+        let webp_encoder = Encoder::from_image(&input).ok_or_else(|| 
+            ImageOptimizerError::EncodeWebPError("Error converting image to WebP encoder".to_string()))?;
+        let webp_data = webp_encoder.encode(quality)
+            .map_err(|_| ImageOptimizerError::EncodeWebPError("Error encoding image with provided quality".to_string()))?;
 
-        std::fs::write(output_path, webp_data).map_err(|e| ImageOptimizerError::WriteError(format!("Failed to write output image to {}: {}", output_path, e)))?;
+        std::fs::write(output_path, webp_data)
+            .map_err(|e| ImageOptimizerError::WriteError(format!("Failed to write output image to {}: {}", output_path, e)))?;
 
         Ok(())
     }
